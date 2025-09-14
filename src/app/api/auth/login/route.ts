@@ -3,7 +3,9 @@ import { PrismaClient } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import { signToken } from "@/lib/jwt";
+
 export async function POST(req: NextRequest) {
+  console.log("Login route hit");
   const { email, password } = await req.json();
 
   if (!email || !password) {
@@ -16,10 +18,12 @@ export async function POST(req: NextRequest) {
   const user = await db.user.findUnique({
     where: { email },
   });
-  if (!user)
+  if (!user) {
     return NextResponse.json({ error: "Invalid user" }, { status: 401 });
+  }
 
-  if (!bcrypt.compare(password, user.password)) {
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) {
     return NextResponse.json({ error: "Invalid password" }, { status: 401 });
   }
 
