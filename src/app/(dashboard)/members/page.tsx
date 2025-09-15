@@ -28,7 +28,7 @@ export default async function Members() {
     }));
 
     const currentUser: User = {
-      id: "", // Replace with actual user ID if needed
+      id: "", 
       tenantId,
       role,
       email,

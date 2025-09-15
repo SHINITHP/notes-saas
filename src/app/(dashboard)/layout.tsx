@@ -25,7 +25,7 @@ export default async function DashboardLayout({
     };
 
     const userData: User = {
-      id: "", // Replace with actual user ID if needed
+      id: "",
       tenantId,
       role,
       email,
