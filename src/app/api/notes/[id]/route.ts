@@ -8,25 +8,41 @@ const noteSchema = z.object({
   content: z.string().min(1, "Content required").max(5000),
 });
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     const { tenantId, role } = await verifyAuth(req);
+
     if (role !== "ADMIN" && role !== "MEMBER") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const data = noteSchema.parse(await req.json());
+
     const note = await db.note.update({
-      where: { id: params.id, tenantId },
-      data: { ...data, updatedAt: new Date() },
+      where: {
+        id: params.id,
+        tenantId,
+      },
+      data: {
+        ...data,
+        updatedAt: new Date(),
+      },
     });
+
     return NextResponse.json(note);
   } catch (error) {
+    console.error(error);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     const { tenantId, role } = await verifyAuth(req);
     if (role !== "ADMIN" && role !== "MEMBER") {
