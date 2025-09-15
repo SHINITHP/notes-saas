@@ -2,12 +2,23 @@ import { NextRequest, NextResponse } from "next/server";
 import { verifyAuth } from "@/lib/auth";
 
 export const config = {
-  matcher: ["/notes", "/api/notes/:path*", "/api/users/invite", "/api/tenants/:path*/upgrade"],
+  matcher: [
+    "/notes",
+    "/members",
+    "/api/notes/:path*",
+    "/api/users/invite",
+    "/api/tenants/:path*/upgrade",
+    "/api/invitations/accept",
+  ],
 };
 
 export async function middleware(req: NextRequest) {
   try {
-    await verifyAuth(req);
+    const { role } = await verifyAuth(req);
+    if (req.nextUrl.pathname.startsWith("/members") && role !== "ADMIN") {
+      return NextResponse.redirect(new URL("/not-found", req.url));
+    }
+
     return NextResponse.next();
   } catch {
     if (req.nextUrl.pathname.startsWith("/api")) {

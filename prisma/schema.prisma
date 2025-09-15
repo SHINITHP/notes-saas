@@ -26,6 +26,7 @@ model Tenant {
   isPro Boolean @default(false)
   users User[]
   notes Note[]
+  invitations Invitation[]
 }
 
 model User {
@@ -46,5 +47,16 @@ model Note {
   tenantId String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+}
+
+model Invitation {
+  id        String   @id @default(uuid())
+  email     String
+  token     String   @unique // Secure token for invite link
+  role      Role
+  tenantId  String
+  createdAt DateTime @default(now())
+  expiresAt DateTime // Token expiration
   tenant    Tenant   @relation(fields: [tenantId], references: [id])
 }

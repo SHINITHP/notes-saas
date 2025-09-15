@@ -40,6 +40,7 @@ export async function POST(req: NextRequest) {
       tenantId: user.tenantId,
       role: user.role,
       tenantSlug: user.tenant.slug,
+      email: user.email,
     })
       .setProtectedHeader({ alg: "HS256" })
       .setIssuedAt()

@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -17,105 +17,70 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
-import { Search, MoreVertical, Edit, Trash2, Mail, UserPlus } from "lucide-react";
+import { Search, MoreVertical, Trash2, UserPlus } from "lucide-react";
 import { toast } from "sonner";
+import { UserData } from "@/lib/types";
+import { InviteUserModal } from "./invites/InviteUserModal";
 
-
-interface Member {
-  id: number;
-  name: string;
-  email: string;
-  role: string;
-  department: string;
-  status: "active" | "inactive";
-  joinDate: string;
+interface MembersPageProps {
+  initialUsers: UserData[];
+  currentUser: UserData;
 }
 
-export default function MembersPage() {
-
+export default function MembersPage({ initialUsers, currentUser }: MembersPageProps) {
   const [searchQuery, setSearchQuery] = useState("");
+  const [users, setUsers] = useState(initialUsers);
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const members: Member[] = [
-    {
-      id: 1,
-      name: "John Smith",
-      email: "john.smith@company.com",
-      role: "Senior Developer",
-      department: "Engineering",
-      status: "active",
-      joinDate: "Jan 10, 2024",
-    },
-    {
-      id: 2,
-      name: "Sarah Johnson",
-      email: "sarah.j@company.com",
-      role: "Product Manager",
-      department: "Product",
-      status: "active",
-      joinDate: "Dec 15, 2023",
-    },
-    {
-      id: 3,
-      name: "Michael Chen",
-      email: "m.chen@company.com",
-      role: "UX Designer",
-      department: "Design",
-      status: "active",
-      joinDate: "Nov 22, 2023",
-    },
-    {
-      id: 4,
-      name: "Emily Davis",
-      email: "emily.d@company.com",
-      role: "Marketing Manager",
-      department: "Marketing",
-      status: "inactive",
-      joinDate: "Oct 5, 2023",
-    },
-    {
-      id: 5,
-      name: "Robert Wilson",
-      email: "r.wilson@company.com",
-      role: "DevOps Engineer",
-      department: "Engineering",
-      status: "active",
-      joinDate: "Sep 18, 2023",
-    },
-    {
-      id: 6,
-      name: "Lisa Anderson",
-      email: "lisa.a@company.com",
-      role: "HR Manager",
-      department: "Human Resources",
-      status: "active",
-      joinDate: "Aug 30, 2023",
-    },
-  ];
-
-  const filteredMembers = members.filter(
-    (member) =>
-      member.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      member.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      member.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      member.department.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredUsers = users.filter(
+    (user) =>
+      user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.role.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleAction = (action: string, memberId: number) => {
-    const member = members.find((m) => m.id === memberId);
-    
+  const handleInvite = async (data: { email: string; role: "ADMIN" | "MEMBER" }) => {
+    setIsLoading(true);
+    try {
+      const res = await fetch("/api/invite", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      toast.success("Invitation sent successfully!");
+      setIsInviteModalOpen(false);
+    } catch (error) {
+      toast.error((error as Error).message || "Failed to send invitation");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDelete = async (userId: string) => {
+    setIsLoading(true);
+    try {
+      const res = await fetch(`/api/users/${userId}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error(await res.text());
+      setUsers(users.filter((u) => u.id !== userId));
+      toast.success("User deleted successfully!");
+    } catch (error) {
+      toast.error((error as Error).message || "Failed to delete user");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-gradient-subtle">
-      <div className="container mx-auto px-4">
+      <div className="container px-4">
         <header className="mb-8">
-          <h1 className="text-4xl font-bold text-foreground mb-2">
-            Team Members
-          </h1>
-          <p className="text-muted-foreground">
-            Manage and view all team members
-          </p>
+          <h1 className="text-4xl font-bold text-foreground mb-2">Team Members</h1>
+          <p className="text-muted-foreground">Manage and view all team members</p>
         </header>
 
         <div className="bg-card rounded-lg shadow-lg border border-border">
@@ -130,8 +95,12 @@ export default function MembersPage() {
                   className="pl-10 bg-background border-input"
                 />
               </div>
-              <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
-                <UserPlus /> Invite Member
+              <Button
+                onClick={() => setIsInviteModalOpen(true)}
+                className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                disabled={isLoading}
+              >
+                <UserPlus className="mr-2 h-4 w-4" /> Invite Member
               </Button>
             </div>
           </div>
@@ -140,7 +109,6 @@ export default function MembersPage() {
             <Table>
               <TableHeader>
                 <TableRow className="border-border hover:bg-transparent">
-                  <TableHead className="text-muted-foreground">Name</TableHead>
                   <TableHead className="text-muted-foreground">Email</TableHead>
                   <TableHead className="text-muted-foreground">Role</TableHead>
                   <TableHead className="text-muted-foreground">Join Date</TableHead>
@@ -148,63 +116,51 @@ export default function MembersPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredMembers.map((member) => (
-                  <TableRow key={member.id} className="border-border hover:bg-muted/30">
-                    <TableCell className="font-medium text-foreground">
-                      {member.name}
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {member.email}
-                    </TableCell>
-                    <TableCell className="text-foreground">
-                      {member.role}
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {member.joinDate}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="hover:bg-muted"
-                          >
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="bg-popover border-border">
-                          {/* <DropdownMenuItem
-                            onClick={() => handleAction("Edit", member.id)}
-                            className="hover:bg-muted cursor-pointer"
-                          >
-                            <Edit className="mr-2 h-4 w-4" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => handleAction("Email", member.id)}
-                            className="hover:bg-muted cursor-pointer"
-                          >
-                            <Mail className="mr-2 h-4 w-4" />
-                            Send Email
-                          </DropdownMenuItem> */}
-                          <DropdownMenuItem
-                            onClick={() => handleAction("Delete", member.id)}
-                            className="hover:bg-destructive/20 text-destructive cursor-pointer"
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                {filteredUsers.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={4} className="text-center text-muted-foreground">
+                      No members found.
                     </TableCell>
                   </TableRow>
-                ))}
+                ) : (
+                  filteredUsers.map((user) => (
+                    <TableRow key={user.id} className="border-border hover:bg-muted/30">
+                      <TableCell className="text-muted-foreground">{user.email}</TableCell>
+                      <TableCell className="text-foreground">{user.role}</TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {user.createdAt?.getDate()}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="hover:bg-muted">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="bg-popover border-border">
+                            <DropdownMenuItem
+                              onClick={() => handleDelete(user.id)}
+                              className="hover:bg-destructive/20 text-destructive cursor-pointer"
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
           </div>
         </div>
       </div>
+      <InviteUserModal
+        open={isInviteModalOpen}
+        onOpenChange={setIsInviteModalOpen}
+        onSave={handleInvite}
+      />
     </div>
   );
 }
