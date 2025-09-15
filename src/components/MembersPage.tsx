@@ -24,10 +24,9 @@ import { InviteUserModal } from "./invites/InviteUserModal";
 
 interface MembersPageProps {
   initialUsers: UserData[];
-  currentUser: UserData;
 }
 
-export default function MembersPage({ initialUsers, currentUser }: MembersPageProps) {
+export default function MembersPage({ initialUsers }: MembersPageProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [users, setUsers] = useState(initialUsers);
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);

@@ -1,4 +1,3 @@
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
@@ -12,8 +11,7 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }) {
   try {
-    const cookieStore = cookies();
-    const { tenantId, role, tenantSlug, email } = await verifyAuth();
+    const { tenantId, role, email } = await verifyAuth();
     const tenant = await db.tenant.findUnique({ where: { id: tenantId } });
 
     if (!tenant) throw new Error("Tenant not found");

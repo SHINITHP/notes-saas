@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "sonner";
-import App from "next/app";
 
 export const metadata: Metadata = {
   title: "Notes SaaS",

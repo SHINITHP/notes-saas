@@ -21,7 +21,7 @@ export async function POST(
     }
 
     // Update tenant to Pro
-    const tenant = await db.tenant.update({
+    await db.tenant.update({
       where: { slug: params.slug, id: tenantId },
       data: { isPro: true },
     });
