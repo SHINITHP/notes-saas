@@ -1,42 +1,33 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-import jwt from "jsonwebtoken";
-import { verifyToken } from "@/lib/jwt";
 import { db } from "@/lib/db";
-
-const JWT_SECRET = process.env.JWT_SECRET!;
+import { verifyAuth } from "@/lib/auth";
 
 export async function POST(
   req: NextRequest,
   { params }: { params: { slug: string } }
 ) {
-  const token = req.headers.get("Authorization")?.split(" ")[1];
-  if (!token) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   try {
-    const decoded = jwt.verify(token, JWT_SECRET!) as {
-      userId: string;
-      tenantId: string;
-      role: string;
-    };
+    console.log("Upgrade request for tenant slug:", params.slug);
+    const { tenantId, role, tenantSlug } = await verifyAuth(req);
 
-    if (decoded.role !== "ADMIN")
+    if (role !== "ADMIN")
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-    const tenant = await db.tenant.findUnique({ where: { slug: params.slug } });
+    if (tenantSlug !== params.slug) {
+      return NextResponse.json(
+        { error: "Invalid tenant slug" },
+        { status: 400 }
+      );
+    }
 
-    if (!tenant || tenant.id !== decoded.tenantId)
-      return NextResponse.json({ error: "Not found" }, { status: 404 });
-
-    await db.tenant.update({
-      where: { id: tenant.id },
+    // Update tenant to Pro
+    const tenant = await db.tenant.update({
+      where: { slug: params.slug, id: tenantId },
       data: { isPro: true },
     });
 
-    return NextResponse.json({ message: "Upgraded to Pro" });
+    return NextResponse.json({ message: "Subscription upgraded" }, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

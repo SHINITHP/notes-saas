@@ -1,4 +1,3 @@
-// lib/auth.ts
 import { jwtVerify } from "jose";
 import { NextRequest } from "next/server";
 import { cookies } from "next/headers";
@@ -9,11 +8,9 @@ export async function verifyAuth(request?: NextRequest) {
   let token: string | undefined;
 
   if (request) {
-    // For API routes
     token = request.cookies.get("auth-token")?.value;
   } else {
-    // For server components
-    const cookieStore = await cookies(); // Await the Promise
+    const cookieStore = await cookies();
     token = cookieStore.get("auth-token")?.value;
   }
 
@@ -23,7 +20,7 @@ export async function verifyAuth(request?: NextRequest) {
 
   try {
     const { payload } = await jwtVerify(token, JWT_SECRET);
-    return payload as { userId: string; tenantId: string; role: "ADMIN" | "MEMBER" };
+    return payload as { userId: string; tenantId: string; role: "ADMIN" | "MEMBER"; tenantSlug: string };
   } catch {
     throw new Error("Unauthorized: Invalid or expired token");
   }

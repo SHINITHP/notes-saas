@@ -1,4 +1,3 @@
-// lib/types.ts
 export interface NoteData {
   id: string;
   title: string;
@@ -7,4 +6,16 @@ export interface NoteData {
   createdAt: Date;
   updatedAt: Date;
   updatedAtFormatted: string;
+}
+
+export interface TenantData {
+  id: string;
+  slug: string;
+  isPro: boolean;
+}
+
+export interface UserData {
+  id: string;
+  tenantId: string;
+  role: "ADMIN" | "MEMBER";
 }

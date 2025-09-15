@@ -7,7 +7,6 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { CreateNoteModal } from "./CreateNoteModal";
 import { NoteData } from "@/lib/types";
-import { PlanLimitBanner } from "../subscription/PlanLimitBanner";
 import { EditNoteModal } from "./EditNotemodal";
 
 interface NoteCardProps {
@@ -117,10 +116,8 @@ export function NoteCard({ initialNotes }: NoteCardProps) {
           <Plus className="font-bold" /> New Note
         </Button>
       </div>
-      <div className="py-6">
-        <PlanLimitBanner />
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 py-6">
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 py-8">
         {notes.length === 0 ? (
           <p className="col-span-full text-center text-muted-foreground">
             No notes found. Create one to get started!
