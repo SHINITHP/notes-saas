@@ -60,7 +60,7 @@ export default function LoginPage() {
         const { token } = await res.json();
         localStorage.setItem("token", token);
         toast.success("Logged in successfully!");
-        router.push("/dashboard");
+        router.push("/notes");
       } else {
         const { error } = await res.json();
         toast.error(error || "Login failed. Please try again.");

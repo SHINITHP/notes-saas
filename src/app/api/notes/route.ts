@@ -1,68 +1,135 @@
+// import { NextRequest, NextResponse } from "next/server";
+// import { PrismaClient } from "@prisma/client";
+// import jwt from "jsonwebtoken";
+// import { db } from "@/lib/db";
+
+// const JWT_SECRET = process.env.JWT_SECRET!;
+
+// // list notes
+// export async function GET(req: NextRequest) {
+//   try {
+//     console.log("List notes route hit");
+//     const userData = req.headers.get("x-user-data");
+//     if (!userData) {
+//       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+//     }
+//     const { tenantId, role } = JSON.parse(userData);
+
+//     const notes = await db.note.findMany({
+//       where: { tenantId: tenantId },
+//     });
+
+//     return NextResponse.json(notes);
+//   } catch (error) {
+//     return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+//   }
+// }
+
+// // create note
+// export async function POST(req: NextRequest) {
+//   try {
+//     console.log("Create note route hit");
+//     const userData = req.headers.get("x-user-data");
+//     if (!userData) {
+//       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+//     }
+
+//     const { tenantId, role } = JSON.parse(userData);
+//     if (!tenantId || !role) {
+//       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+//     }
+
+//     // Only ADMIN and MEMBER can create notes
+//     if (role !== "ADMIN" && role !== "MEMBER") {
+//       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+//     }
+
+//     const tenant = await db.tenant.findUnique({
+//       where: { id: tenantId },
+//     });
+
+//     if (!tenant) {
+//       return NextResponse.json({ error: "Tenant not found" }, { status: 404 });
+//     }
+
+//     // Enforce subscription limit
+//     if (!tenant.isPro) {
+//       const noteCount = await db.note.count({
+//         where: { tenantId },
+//       });
+//       if (noteCount >= 3) {
+//         return NextResponse.json(
+//           { error: "Free plan limit reached. Upgrade to Pro." },
+//           { status: 403 }
+//         );
+//       }
+//     }
+
+//     const { title, content } = await req.json();
+
+//     const note = await db.note.create({
+//       data: {
+//         title,
+//         content,
+//         tenantId,
+//       },
+//     });
+
+//     return NextResponse.json(note, { status: 201 });
+//   } catch (error) {
+//     console.error(error);
+//     return NextResponse.json(
+//       { error: "Something went wrong" },
+//       { status: 500 }
+//     );
+//   }
+// }
+
+// app/api/notes/route.ts (List and Create)
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-import jwt from "jsonwebtoken";
 import { db } from "@/lib/db";
+import { verifyAuth } from "@/lib/auth";
+import { z } from "zod";
 
-const JWT_SECRET = process.env.JWT_SECRET!;
+const noteSchema = z.object({
+  title: z.string().min(1, "Title required").max(100),
+  content: z.string().min(1, "Content required").max(5000),
+});
 
-// list notes
 export async function GET(req: NextRequest) {
-  const token = req.headers.get("Authorization")?.split(" ")[1];
-  if (!token) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { tenantId: string };
+    const { tenantId } = await verifyAuth(req);
     const notes = await db.note.findMany({
-      where: { tenantId: decoded.tenantId },
+      where: { tenantId },
+      orderBy: { updatedAt: "desc" },
     });
-
     return NextResponse.json(notes);
   } catch (error) {
-    return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    return NextResponse.json({ error: (error as Error).message }, { status: 401 });
   }
 }
 
-// create note
 export async function POST(req: NextRequest) {
-  const token = req.headers.get("Authorization")?.split(" ")[1];
-  if (!token) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as {
-      tenantId: string;
-      role: "ADMIN" | "MEMBER";
-    };
-    if (decoded.role !== "ADMIN" && decoded.role !== "MEMBER")
+    const { tenantId, role } = await verifyAuth(req);
+    if (role !== "ADMIN" && role !== "MEMBER") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-
-    const tenant = await db.tenant.findUnique({
-      where: { id: decoded.tenantId },
-    });
-
-    if(!tenant) return NextResponse.json({ error: "Tenant not found" }, { status: 404 });
-
-    if(!tenant.isPro){
-        const noteCount = await db.note.count({
-            where: {
-                tenantId: decoded.tenantId
-            }
-        })
     }
 
-    const { title, content } = await req.json();
+    const tenant = await db.tenant.findUnique({ where: { id: tenantId } });
+    if (!tenant?.isPro) {
+      const noteCount = await db.note.count({ where: { tenantId } });
+      if (noteCount >= 3) {
+        return NextResponse.json({ error: "Free plan limit reached" }, { status: 403 });
+      }
+    }
+
+    const data = noteSchema.parse(await req.json());
     const note = await db.note.create({
-        data: {
-            title, content,tenantId: decoded.tenantId
-        }
-    })
-
-    return NextResponse.json(note, { status: 201 } );
-
+      data: { ...data, tenantId, updatedAt: new Date() },
+    });
+    return NextResponse.json(note, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
