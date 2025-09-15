@@ -32,6 +32,7 @@ export async function POST(req: NextRequest) {
     await db.invitation.delete({ where: { id: invitation.id } });
     return NextResponse.json({ message: "User created successfully", user }, { status: 201 });
   } catch (error) {
+    console.log(error)
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

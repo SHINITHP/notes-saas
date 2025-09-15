@@ -9,7 +9,7 @@ import { PlanLimitBanner } from "@/components/subscription/PlanLimitBanner";
 
 export default async function NotesPage() {
   try {
-    const { tenantId, role, tenantSlug } = await verifyAuth();
+    const { tenantId, role } = await verifyAuth();
 
     const rawNotes = await db.note.findMany({
       where: { tenantId },

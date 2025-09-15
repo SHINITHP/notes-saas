@@ -27,19 +27,10 @@ export default async function Members() {
       }),
     }));
 
-    const currentUser: User = {
-      id: "", 
-      tenantId,
-      role,
-      email,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-
     return (
       <PageWrapper>
       <div className="container mx-auto p-4">
-        <MembersPage initialUsers={users} currentUser={currentUser} />
+        <MembersPage initialUsers={users} />
       </div>
       </PageWrapper>
     );

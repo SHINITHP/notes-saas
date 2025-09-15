@@ -10,7 +10,7 @@ const noteSchema = z.object({
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const { tenantId, role } = await verifyAuth(req);
@@ -21,9 +21,10 @@ export async function PUT(
 
     const data = noteSchema.parse(await req.json());
 
+    const { id } = await context.params; // Await the params
     const note = await db.note.update({
       where: {
-        id: params.id,
+        id,
         tenantId,
       },
       data: {
@@ -33,15 +34,15 @@ export async function PUT(
     });
 
     return NextResponse.json(note);
-  } catch (error) {
-    console.error(error);
+  } catch {
+    console.error("PUT error"); // Remove unused error variable
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const { tenantId, role } = await verifyAuth(req);
@@ -49,9 +50,11 @@ export async function DELETE(
       return NextResponse.json({ error: "UnAuthorized User" }, { status: 403 });
     }
 
-    await db.note.delete({ where: { id: params.id, tenantId } });
+    const { id } = await context.params; // Await the params
+    await db.note.delete({ where: { id, tenantId } });
     return NextResponse.json({ message: "Note deleted" });
-  } catch (error) {
+  } catch {
+    console.log("DELETE error"); // Remove unused error variable
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

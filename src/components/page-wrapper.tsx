@@ -24,6 +24,7 @@ export function PageWrapper({ children }: PageWrapperProps) {
       toast.success("Logged out successfully");
       router.push("/login");
     } catch (error) {
+      console.log(error)
       toast.error("Failed to log out");
     }
   };
