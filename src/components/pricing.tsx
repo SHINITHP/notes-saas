@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { Check } from 'lucide-react'
+import Image from 'next/image'
 import Link from 'next/link'
 
 export default function Pricing() {
@@ -44,33 +45,29 @@ export default function Pricing() {
                                 </ul>
                                 <p className="text-muted-foreground mt-6 text-sm">Team can be any size, and you can add or switch members as needed. Companies using our platform include:</p>
                                 <div className="mt-12 flex flex-wrap items-center justify-between gap-6">
-                                    <img
+                                    <Image
                                         className="h-5 w-fit dark:invert"
                                         src="https://html.tailus.io/blocks/customers/nvidia.svg"
                                         alt="Nvidia Logo"
                                         height="20"
-                                        width="auto"
                                     />
-                                    <img
+                                    <Image
                                         className="h-4 w-fit dark:invert"
                                         src="https://html.tailus.io/blocks/customers/column.svg"
                                         alt="Column Logo"
                                         height="16"
-                                        width="auto"
                                     />
-                                    <img
+                                    <Image
                                         className="h-4 w-fit dark:invert"
                                         src="https://html.tailus.io/blocks/customers/github.svg"
                                         alt="GitHub Logo"
                                         height="16"
-                                        width="auto"
                                     />
-                                    <img
+                                    <Image
                                         className="h-5 w-fit dark:invert"
                                         src="https://html.tailus.io/blocks/customers/nike.svg"
                                         alt="Nike Logo"
                                         height="20"
-                                        width="auto"
                                     />
                                 </div>
                             </div>

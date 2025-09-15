@@ -1,22 +1,16 @@
 "use client";
 
 import * as React from "react";
-import { ChevronsUpDown, GalleryVerticalEnd, Plus } from "lucide-react";
+import { ChevronsUpDown, GalleryVerticalEnd } from "lucide-react";
 
 import {
   DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar,
 } from "@/components/ui/sidebar";
 import { TenantData } from "@/lib/types";
 
@@ -25,7 +19,6 @@ interface TeamSwitcherProps {
 }
 
 export function TeamSwitcher({ teams }: TeamSwitcherProps) {
-  const { isMobile } = useSidebar();
   const [activeTeam, setActiveTeam] = React.useState(teams[0]);
 
   if (!activeTeam) {

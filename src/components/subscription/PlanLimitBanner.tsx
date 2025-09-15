@@ -3,7 +3,6 @@
 import { Crown, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { useRouter } from "next/navigation";
 import { UserData } from "@/lib/types";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -14,16 +13,11 @@ interface PlanLimitBannerProps {
 }
 
 export function PlanLimitBanner({ tenant, user }: PlanLimitBannerProps) {
-  const [noteCount, setNoteCount] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
-
   useEffect(() => {
     const fetchNoteCount = async () => {
       try {
         const res = await fetch("/api/notes", { credentials: "include" });
         if (!res.ok) throw new Error("Failed to fetch notes");
-        const notes = await res.json();
-        setNoteCount(notes.length);
       } catch {
         toast.error("Failed to fetch note count");
       }
@@ -32,7 +26,6 @@ export function PlanLimitBanner({ tenant, user }: PlanLimitBannerProps) {
   }, []);
 
   const handleUpgrade = async () => {
-    setIsLoading(true);
     try {
       const res = await fetch(`/api/tenants/${tenant.slug}/upgrade`, {
         method: "POST",
@@ -43,8 +36,6 @@ export function PlanLimitBanner({ tenant, user }: PlanLimitBannerProps) {
       window.location.reload();
     } catch (error) {
       toast.error((error as Error).message || "Failed to upgrade");
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -60,7 +51,7 @@ export function PlanLimitBanner({ tenant, user }: PlanLimitBannerProps) {
               </div>
               <div>
                 <h3 className="text-sm font-medium text-yellow-900 dark:text-white">
-                  You've reached your note limit
+                  You&apos;ve reached your note limit
                 </h3>
                 <p className="text-sm text-yellow-800/90 dark:text-muted-foreground mt-1">
                   Upgrade to Pro to create unlimited notes and unlock premium
@@ -68,18 +59,16 @@ export function PlanLimitBanner({ tenant, user }: PlanLimitBannerProps) {
                 </p>
               </div>
             </div>
-
             {user.role === "ADMIN" && (
               <Button
                 onClick={handleUpgrade}
                 variant="secondary"
-                className="shrink-0 flex items-center gap-2 "
+                className="shrink-0 flex items-center gap-2"
               >
                 Upgrade to Pro
                 <ArrowRight className="h-4 w-4" />
               </Button>
             )}
-
           </div>
         </CardContent>
       </Card>
