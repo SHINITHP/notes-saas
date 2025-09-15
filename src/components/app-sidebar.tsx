@@ -1,109 +1,49 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import {
-  AudioWaveform,
-  BookOpen,
-  Bot,
-  Command,
-  Notebook,
-  GalleryVerticalEnd,
-  Map,
-  PieChart,
-  Crown,
-  SquareTerminal,
-  User2,
-} from "lucide-react"
+import * as React from "react";
+import { Notebook, User2, Crown } from "lucide-react";
+import { NavProjects } from "@/components/nav-projects";
+import { TeamSwitcher } from "@/components/team-switcher";
+import { Sidebar, SidebarContent, SidebarHeader, SidebarRail } from "@/components/ui/sidebar";
+import { TenantData, UserData } from "@/lib/types";
 
-import { NavMain } from "@/components/nav-main"
-import { NavProjects } from "@/components/nav-projects"
-import { NavUser } from "@/components/nav-user"
-import { TeamSwitcher } from "@/components/team-switcher"
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarRail,
-} from "@/components/ui/sidebar"
+interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
+  tenant: TenantData;
+  user: UserData;
+}
 
-// This is sample data.
-const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  teams: [
-    {
-      name: "Acme Inc",
-      logo: GalleryVerticalEnd,
-      plan: "Enterprise",
-    },
-    {
-      name: "Acme Corp.",
-      logo: AudioWaveform,
-      plan: "Startup",
-    },
-    {
-      name: "Evil Corp.",
-      logo: Command,
-      plan: "Free",
-    },
-  ],
-  navMain: [
-    {
-      title: "Notes",
-      url: "/notes",
-      icon: SquareTerminal,
-      isActive: true,
-      items: [
-        {
-          title: "History",
-          url: "#",
-        },
-        {
-          title: "Starred",
-          url: "#",
-        },
-        {
-          title: "Settings",
-          url: "#",
-        },
-      ],
-    },
-   
-  ],
-  projects: [
+export function AppSidebar({ tenant, user, ...props }: AppSidebarProps) {
+  const projects = [
     {
       name: "Notes",
       url: "/notes",
       icon: Notebook,
     },
-    {
-      name: "Members",
-      url: "/members",
-      icon: User2,
-    },
-    {
-      name: "Subscriptions",
-      url: "/subscription",
-      icon: Crown,
-    },
-   
-  ],
-}
+    ...(user.role === "ADMIN"
+      ? [
+          {
+            name: "Members",
+            url: "/members",
+            icon: User2,
+          },
+          {
+            name: "Subscriptions",
+            url: "/subscription",
+            icon: Crown,
+          },
+        ]
+      : []),
+  ];
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
+        <TeamSwitcher teams={[tenant]} />
       </SidebarHeader>
       <SidebarContent>
-        <NavProjects projects={data.projects} />
+        <NavProjects projects={projects} />
       </SidebarContent>
       <SidebarRail />
     </Sidebar>
-  )
+  );
 }
