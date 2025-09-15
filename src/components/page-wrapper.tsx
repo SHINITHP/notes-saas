@@ -22,7 +22,7 @@ export function PageWrapper({ children }: PageWrapperProps) {
       });
       if (!res.ok) throw new Error("Logout failed");
       toast.success("Logged out successfully");
-      router.push("/login");
+      router.push("/");
     } catch (error) {
       console.log(error)
       toast.error("Failed to log out");

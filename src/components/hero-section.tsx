@@ -14,18 +14,18 @@ export default function HeroSection() {
             <main className="overflow-x-hidden">
                 <section>
                     <div className="py-24 md:pb-32 lg:pb-36 lg:pt-40">
-                        <div className="relative mx-auto flex max-w-7xl flex-col px-6 lg:block lg:px-12">
+                        <div className="relative mx-auto flex max-w-7xl flex-col px-2 lg:block ">
                             <div className="mx-auto max-w-lg text-center lg:ml-0 lg:max-w-full lg:text-left">
-                                <h1 className=" max-w-2xl text-balance text-5xl md:text-6xl  xl:text-7xl">Build 10x Faster with NS</h1>
-                                <p className="mt-8 max-w-2xl text-balance text-lg">Highly customizable components for building modern websites and applications you mean it.</p>
+                                <h1 className=" max-w-2xl text-balance text-5xl md:text-6xl  xl:text-6xl">Organize 10x Faster with NoteSync</h1>
+                                <p className="mt-8 max-w-2xl text-balance text-lg">Capture, collaborate, and manage your notes effortlessly with highly customizable tools designed for teams and individuals.</p>
 
                                 <div className="mt-12 flex flex-col items-center justify-center gap-2 sm:flex-row lg:justify-start">
                                     <Button
                                         asChild
                                         size="lg"
                                         className="h-12 rounded-full pl-5 pr-3 text-base">
-                                        <Link href="#link">
-                                            <span className="text-nowrap">Start Building</span>
+                                        <Link href="#get-started">
+                                            <span className="text-nowrap">Get Started</span>
                                             <ChevronRight className="ml-1" />
                                         </Link>
                                     </Button>
@@ -35,19 +35,12 @@ export default function HeroSection() {
                                         size="lg"
                                         variant="ghost"
                                         className="h-12 rounded-full px-5 text-base hover:bg-zinc-950/5 dark:hover:bg-white/5">
-                                        <Link href="#link">
-                                            <span className="text-nowrap">Request a demo</span>
+                                        <Link href="#request-demo">
+                                            <span className="text-nowrap">Request a Demo</span>
                                         </Link>
                                     </Button>
                                 </div>
                             </div>
-                        </div>
-                        <div className="aspect-2/3 absolute inset-1 -z-10 overflow-hidden rounded-3xl border border-black/10 lg:aspect-video lg:rounded-[3rem] dark:border-white/5">
-                            <video
-                                autoPlay
-                                loop
-                                className="size-full object-cover opacity-50 invert dark:opacity-35 dark:invert-0 dark:lg:opacity-75"
-                                src="https://ik.imagekit.io/lrigu76hy/tailark/dna-video.mp4?updatedAt=1745736251477"></video>
                         </div>
                     </div>
                 </section>
@@ -55,7 +48,7 @@ export default function HeroSection() {
                     <div className="group relative m-auto max-w-7xl px-6">
                         <div className="flex flex-col items-center md:flex-row">
                             <div className="md:max-w-44 md:border-r md:pr-6">
-                                <p className="text-end text-sm">Powering the best teams</p>
+                                <p className="text-end text-sm">Trusted by top teams</p>
                             </div>
                             <div className="relative py-6 md:w-[calc(100%-11rem)]">
                                 <InfiniteSlider
@@ -66,6 +59,7 @@ export default function HeroSection() {
                                         <Image
                                             className="mx-auto h-5 w-fit dark:invert"
                                             src="https://html.tailus.io/blocks/customers/nvidia.svg"
+                                            width="80"
                                             alt="Nvidia Logo"
                                             height="20"
                                         />
@@ -75,6 +69,7 @@ export default function HeroSection() {
                                         <Image
                                             className="mx-auto h-4 w-fit dark:invert"
                                             src="https://html.tailus.io/blocks/customers/column.svg"
+                                            width="80"
                                             alt="Column Logo"
                                             height="16"
                                         />
@@ -83,6 +78,7 @@ export default function HeroSection() {
                                         <Image
                                             className="mx-auto h-4 w-fit dark:invert"
                                             src="https://html.tailus.io/blocks/customers/github.svg"
+                                            width="80"
                                             alt="GitHub Logo"
                                             height="16"
                                         />
@@ -91,6 +87,7 @@ export default function HeroSection() {
                                         <Image
                                             className="mx-auto h-5 w-fit dark:invert"
                                             src="https://html.tailus.io/blocks/customers/nike.svg"
+                                            width="80"
                                             alt="Nike Logo"
                                             height="20"
                                         />
@@ -99,6 +96,7 @@ export default function HeroSection() {
                                         <Image
                                             className="mx-auto h-5 w-fit dark:invert"
                                             src="https://html.tailus.io/blocks/customers/lemonsqueezy.svg"
+                                            width="80"
                                             alt="Lemon Squeezy Logo"
                                             height="20"
                                         />
@@ -107,6 +105,7 @@ export default function HeroSection() {
                                         <Image
                                             className="mx-auto h-4 w-fit dark:invert"
                                             src="https://html.tailus.io/blocks/customers/laravel.svg"
+                                            width="80"
                                             alt="Laravel Logo"
                                             height="16"
                                         />
@@ -115,6 +114,7 @@ export default function HeroSection() {
                                         <Image
                                             className="mx-auto h-7 w-fit dark:invert"
                                             src="https://html.tailus.io/blocks/customers/lilly.svg"
+                                            width="80"
                                             alt="Lilly Logo"
                                             height="28"
                                         />
@@ -124,6 +124,7 @@ export default function HeroSection() {
                                         <Image
                                             className="mx-auto h-6 w-fit dark:invert"
                                             src="https://html.tailus.io/blocks/customers/openai.svg"
+                                            width="80"
                                             alt="OpenAI Logo"
                                             height="24"
                                         />
