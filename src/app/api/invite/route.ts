@@ -2,10 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { verifyAuth } from "@/lib/auth";
 import { z } from "zod";
-import { Resend } from "resend";
+import sgMail from "@sendgrid/mail";
 import { randomBytes } from "crypto";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+sgMail.setApiKey(process.env.SENDGRID_API_KEY || "");
 
 const inviteSchema = z.object({
   email: z.string().email("Invalid email"),
@@ -17,15 +17,23 @@ export async function POST(req: NextRequest) {
     console.log("Invite API called");
     const { tenantId, role, tenantSlug } = await verifyAuth(req);
     if (role !== "ADMIN") {
-      return NextResponse.json({ error: "Forbidden: Only Admins can invite users" }, { status: 403 });
+      return NextResponse.json(
+        { error: "Forbidden: Only Admins can invite users" },
+        { status: 403 }
+      );
     }
 
     const data = inviteSchema.parse(await req.json());
 
     // Check if user already exists
-    const existingUser = await db.user.findUnique({ where: { email: data.email } });
+    const existingUser = await db.user.findUnique({
+      where: { email: data.email },
+    });
     if (existingUser) {
-      return NextResponse.json({ error: "User already exists" }, { status: 400 });
+      return NextResponse.json(
+        { error: "User already exists" },
+        { status: 400 }
+      );
     }
 
     // Generate secure token
@@ -44,20 +52,24 @@ export async function POST(req: NextRequest) {
     });
 
     // Verify Resend API key
-    if (!process.env.RESEND_API_KEY) {
-      console.error("RESEND_API_KEY is not set");
-      return NextResponse.json({ error: "Email service configuration error" }, { status: 500 });
+    if (!process.env.SENDGRID_API_KEY) {
+      console.error("SENDGRID_API_KEY is not set");
+      return NextResponse.json(
+        { error: "Email service configuration error" },
+        { status: 500 }
+      );
     }
 
     // Send invite email
     const inviteLink = `${process.env.NEXT_PUBLIC_API_BASE_URL}/invitations/accept?token=${token}`;
-    console.log("Invite link:", inviteLink);
-    const emailResponse = await resend.emails.send({
-      from: "Notes App <onboarding@resend.dev>", 
-      to: data.email,
+    const emailResponse = await sgMail.send({
+      from: "Notes App <shinithshini6@gmail.com>", // Your verified sender email
+      to: data.email, // Any valid email address
       subject: "You're Invited to Join Notes App",
       html: `
-        <p>You've been invited to join the ${tenantSlug} tenant as a ${data.role}.</p>
+        <p>You've been invited to join the ${tenantSlug} tenant as a ${
+        data.role
+      }.</p>
         <p><a href="${inviteLink}">Click here to accept the invitation</a> and set your password.</p>
         <p>This link expires on ${expiresAt.toLocaleDateString()}.</p>
       `,
@@ -65,12 +77,10 @@ export async function POST(req: NextRequest) {
 
     console.log("Email response:", emailResponse);
 
-    if (emailResponse.error) {
-      console.error("Email sending failed:", emailResponse.error);
-      return NextResponse.json({ error: "Failed to send email" }, { status: 500 });
-    }
-
-    return NextResponse.json({ message: "Invitation sent", invitation }, { status: 201 });
+    return NextResponse.json(
+      { message: "Invitation sent", invitation },
+      { status: 201 }
+    );
   } catch (error) {
     console.error("Error in invite route:", error);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
